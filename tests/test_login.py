@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page,expect
 from assertpy import assert_that
 import pytest
 from utilities.data_source import DataSource
@@ -32,3 +32,4 @@ class TestLoginUI():
         actual_error = page.locator(
             "xpath=//p[contains(normalize-space(),'Invalid')]").inner_text()
         assert_that(actual_error).is_equal_to(expected_error)
+        expect(page.locator("xpath=//p[contains(normalize-space(),'Invalid')]")).to_have_text(expected_error)
