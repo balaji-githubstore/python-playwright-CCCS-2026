@@ -16,13 +16,19 @@ class TestLoginUI():
         ["john", "john123", "Invalid credentials"],
         ["peter", "peter123", "Invalid credentials"]
     ])
-    def test_invalid_login(self, page: Page, username, password, expected_error):
+    def test_invalid_login(self, page: Page,logger, username, password, expected_error):
+        logger.info("Starting login test")
         page.locator("xpath=//input[@name='username']").fill(username)
+        logger.info(f"Entered username {username}")
         page.locator("xpath=//input[@name='password']").fill(password)
+        logger.info(f"Entered password {password}")
         page.locator("xpath=//button[normalize-space()='Login']").click()
+        logger.info(f"Clicked Login")
         actual_error = page.locator(
             "xpath=//p[contains(normalize-space(),'Invalid')]").inner_text()
         assert_that(actual_error).is_equal_to(expected_error)
+        logger.info(f"Actual error {actual_error}")
+        
 
     @pytest.mark.parametrize("username,password,expected_error", DataSource.data_invalid_login_csv)
     def test_invalid_login_csv(self, page: Page, username, password, expected_error):
