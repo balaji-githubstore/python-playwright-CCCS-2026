@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 import logging
 from datetime import datetime
 import os
-
+import allure
 
 def setup_logging():
     """
@@ -68,9 +68,21 @@ def browser(logger):
 def page(browser, logger):
     logger.info("Opening OrangeHRM application")
     context = browser.new_context()
+
+    context.tracing.start(
+        screenshots=True,
+        snapshots=True,
+        sources=True
+    )
+
     page = context.new_page()
     page.goto("https://opensource-demo.orangehrmlive.com/")
     yield page
+    
+    context.tracing.stop(
+        path="traces/test_trace.zip"
+    )
+
     logger.info("Closing page")
     page.close()
 
@@ -86,6 +98,16 @@ def pytest_runtest_makereport(item, call):
         page = item.funcargs.get("page")
 
         if page:
+            os.makedirs("screenshots", exist_ok=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
             page.screenshot(
-                path=f"screenshots/{item.name}.png"
+                path=f"screenshots/{item.name}_{timestamp}.png"
             )
+
+            # allure.attach.file(
+            #     screenshot_path,
+            #     name="Failure Screenshot",
+            #     attachment_type=allure.attachment_type.PNG
+            # )
